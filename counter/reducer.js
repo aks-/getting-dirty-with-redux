@@ -9,28 +9,16 @@ const counter = (state = 0, action) => {
   }
 }
 
-expect(
-  counter(0, {type: 'INCREMENT'})
-).toEqual(1);
+const {createStore} = Redux;
+const store = createStore(counter);
 
-expect(
-  counter(1, {type: 'INCREMENT'})
-).toEqual(2);
+const render = () => {
+  document.body.innerText = store.getState()
+};
 
-expect(
-  counter(2, {type: 'DECREMENT'})
-).toEqual(1);
+store.subscribe(render);
+render();
 
-expect(
-  counter(1, {type: 'DECREMENT'})
-).toEqual(0);
-
-expect(
-  counter(1, {type: 'SOMETHING_ELSE'})
-).toEqual(1);
-
-expect(
-  counter(undefined, {})
-).toEqual(0);
-
-console.log('Tests passed!');
+document.addEventListener('click', () => {
+  store.dispatch({type: 'INCREMENT'});
+});
