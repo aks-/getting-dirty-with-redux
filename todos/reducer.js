@@ -9,6 +9,14 @@ const todos = (state = [], action) => {
           completed: false
         }
       ];
+    case 'TOGGLE_TODO':
+      return state.map(todo => {
+        if (todo.id !== action.id)
+          return todo;
+        return Object.assign({}, todo, {
+          completed: !todo.completed
+        });
+      });
     default:
       return state;
   }
@@ -35,5 +43,40 @@ const testAddTodo = () => {
   ).toEqual(todosAfter);
 };
 
+const testToggleTodo = () => {
+  const todosBefore = [{
+    id: 3,
+    text: 'hey',
+    completed: false
+  },{
+    id: 4,
+    text: 'Hua',
+    completed: false
+  }];
+
+  const todosAfter = [{
+    id: 3,
+    text: 'hey',
+    completed: false
+  },{
+    id: 4,
+    text: 'Hua',
+    completed: true
+  }];
+
+  const action = {
+    type: 'TOGGLE_TODO',
+    id: 4
+  };
+
+  deepFreeze(todosBefore);
+  deepFreeze(action);
+
+  expect(
+    todos(todosBefore, action)
+  ).toEqual(todosAfter);
+};
+
 testAddTodo();
+testToggleTodo();
 console.log('All tests passed!');
