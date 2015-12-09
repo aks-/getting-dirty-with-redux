@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Redux, {createStore, combineReducers} from 'redux';
+import {Provider} from 'react-redux';
 
 const todo = (state, action) => {
   switch(action.type) {
@@ -52,8 +53,6 @@ const todoApp = combineReducers({
   visibilityFilter
 });
 
-const store = createStore(todoApp);
-
 const getVisibleTodos = (
   todos,
   filter
@@ -91,6 +90,7 @@ const Todo = ({
 
 class VisibleTodoList extends React.Component {
   componentDidMount() {
+    const {store} = this.context;
     this.unsubscribe = store.subscribe(() => {
       this.forceUpdate();
     });
@@ -101,6 +101,7 @@ class VisibleTodoList extends React.Component {
   }
 
   render() {
+    const {store} = this.context;
     const props = this.props;
     const state = store.getState();
 
@@ -122,6 +123,9 @@ class VisibleTodoList extends React.Component {
     );
   }
 }
+VisibleTodoList.contextTypes = {
+  store: React.PropTypes.object
+}
 
 const TodoList = ({
   todos,
@@ -138,7 +142,7 @@ const TodoList = ({
            </ul>
 );
 
-const AddTodo = () => {
+const AddTodo = (props, {store}) => {
   let input;
   return <div>
       <input ref={node => {
@@ -176,6 +180,7 @@ const Link = ({
 
 class FilterLink extends React.Component {
   componentDidMount() {
+    const {store} = this.context;
     this.unsubscribe = store.subscribe(() => {
       this.forceUpdate();
     });
@@ -186,6 +191,7 @@ class FilterLink extends React.Component {
   }
 
   render() {
+    const {store} = this.context;
     const props = this.props;
     const state = store.getState();
 
@@ -205,6 +211,9 @@ class FilterLink extends React.Component {
     );
   }
 }
+FilterLink.contextTypes = {
+  store: React.PropTypes.object
+};
 
 const Footer =({
   visibilityFilter,
@@ -245,65 +254,10 @@ const TodoApp = ({
     </div>;
 }
 
-ReactDOM.render(<TodoApp />,
-                document.getElementById('app'));
-
-
-const testAddTodo = () => {
-  const todosBefore = [];
-  const todosAfter = [{
-    id: 3,
-    text: 'hey',
-    completed: false
-  }];
-
-  const action = {
-    type: 'ADD_TODO',
-    id: 3,
-    text: 'hey'
-  };
-
-  deepFreeze(todosBefore);
-
-  expect(
-    todos(todosBefore, action)
-  ).toEqual(todosAfter);
-};
-
-const testToggleTodo = () => {
-  const todosBefore = [{
-    id: 3,
-    text: 'hey',
-    completed: false
-  },{
-    id: 4,
-    text: 'Hua',
-    completed: false
-  }];
-
-  const todosAfter = [{
-    id: 3,
-    text: 'hey',
-    completed: false
-  },{
-    id: 4,
-    text: 'Hua',
-    completed: true
-  }];
-
-  const action = {
-    type: 'TOGGLE_TODO',
-    id: 4
-  };
-
-  deepFreeze(todosBefore);
-  deepFreeze(action);
-
-  expect(
-    todos(todosBefore, action)
-  ).toEqual(todosAfter);
-};
-
-testAddTodo();
-testToggleTodo();
-console.log('All tests passed!');
+ReactDOM.render(
+  <Provider store={createStore(TodoApp)} >
+    <TodoApp />
+  </Provider>,
+  document.getElementById('app')
+);
+          
