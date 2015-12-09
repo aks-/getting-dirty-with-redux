@@ -92,6 +92,38 @@ const getVisibleTodos = (
   }
 };
 
+const Todo = ({
+  onClick,
+  completed,
+  text
+}) => (
+<li 
+  onClick={onClick}
+  style={{
+    textDecoration:
+    completed ?
+    'line-through':
+    'none'
+  }}>
+  {text}
+</li>
+);
+
+const TodoList = ({
+  todos,
+  onTodoClick
+}) => (
+    <ul>
+      {todos.map(todo => {
+        return <Todo 
+          key={todo.id}
+          onClick={() => onTodoClick(todo.id)}
+          {...todo}
+        />
+      })}
+    </ul>
+);
+
 let nextId = 0;
 class TodoApp extends React.Component {
   render() {
@@ -117,25 +149,15 @@ class TodoApp extends React.Component {
       }}>
       Add Todo
     </button>
-    <ul>
-      {this.props.todos.map(todo => {
-        return <li key={todo.id}
-          onClick={() => {
-            store.dispatch({
-              type: 'TOGGLE_TODO',
-              id: todo.id
-            })
-          }}
-          style={{
-            textDecoration:
-              todo.completed ?
-                'line-through':
-                  'none'
-          }}>
-          {todo.text}
-        </li>;
-      })}
-    </ul>
+    <TodoList
+      todos={visibleTodos}
+      onTodoClick={id=>
+        store.dispatch({
+          type: 'TOGGLE_TODO',
+          id
+        })
+      }
+    />
     <p>
       Show:
       {' '}
