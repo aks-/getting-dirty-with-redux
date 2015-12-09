@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Redux, {createStore, combineReducers} from 'redux';
+
 const todo = (state, action) => {
   switch(action.type) {
     case 'ADD_TODO':
@@ -43,28 +47,46 @@ const visibilityFilter = (
   }
 };
 
-const {createStore} = Redux;
-
-const combineReducers = (reducers) => {
-  return (state = {}, action) => {
-    return Object.keys(reducers).reduce(
-      (nextState, key) => {
-        nextState[key] = reducers[key](
-          state[key],
-          action
-        );
-        return nextState;
-      },
-      {}
-    );
-  };
-};
-
 const todoApp = combineReducers({
   todos,
   visibilityFilter
 });
+
 const store = createStore(todoApp);
+
+let nextId = 0;
+class TodoApp extends React.Component {
+  render() {
+    return <div>
+      <input ref={node => {
+        this.input = node;
+      }}/>
+      <button onClick={() => {
+        store.dispatch({
+          type: 'ADD_TODO',
+          id: this.input.value,
+          text: 'Test'
+        });
+        this.input.value = '';
+      }}>
+      Add Todo
+    </button>
+    <ul>
+      {this.props.todos.map(todo => {
+        return <li>{todo}</li>;
+      })}
+    </ul>
+  </div>;
+  }
+}
+
+const render = () => {
+  ReactDOM.render(<TodoApp todos={store.getState().todos}/>,
+                 document.getElementById('app'));
+};
+
+store.subscribe(render);
+render();
 
 const testAddTodo = () => {
   const todosBefore = [];
